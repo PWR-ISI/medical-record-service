@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    container_name: medical-record-service
+    command: gunicorn medical_record.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DJANGO_DB_HOST=db
+      - DJANGO_DB_NAME=medical_record_db
+      - DJANGO_DB_USER=medical_record_user
+      - DJANGO_DB_PASSWORD=othersecretpassword
+    ports:
+      - "8005:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: postgres-medical-record-service
+    restart: always
+    environment:
+      POSTGRES_DB: medical_record_db
+      POSTGRES_USER: medical_record_user
+      POSTGRES_PASSWORD: othersecretpassword
+    volumes:
+      - postgres-medical-record-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-medical-record-data:
